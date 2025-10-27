@@ -11,7 +11,7 @@ const categorySchema = new mongoose.Schema({
     description: String, 
     parentCategory: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Category', 
+        ref: 'Categoria', 
         default: null 
     }, 
     isActive: { 
