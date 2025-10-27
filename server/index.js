@@ -1,7 +1,5 @@
-require("dotenv").config()
 const express = require("express")
-import mongoose from "mongoose"
-const { connectToDatabase } = require("./db")
+const mongoose = require("mongoose")
 const { Categoria } = require("./models/Categoria")
 const { Producto } = require("./models/Producto")
 
