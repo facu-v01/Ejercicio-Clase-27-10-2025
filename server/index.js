@@ -45,7 +45,7 @@ app.get("/api/productos", async (req, res, next) => {
 
     try {
 
-        const productos = await Producto.find().populate("categoria")
+        const productos = await Producto.find().populate({path: "category", populate: "parentCategory"})
         res.status(200).json(productos)
 
     } catch (error) {
@@ -63,7 +63,7 @@ app.get("/api/productos/:id", async (req, res, next) => {
         const productoId = req.params.id
         console.log("Buscando producto con ID:", productoId)
 
-        const producto = await Producto.findById(productoId).populate("categoria")
+        const producto = await Producto.findById(productoId).populate({path: "category", populate: "parentCategory"})
 
         if (!producto) {
             const error = new Error("Producto no encontrado")

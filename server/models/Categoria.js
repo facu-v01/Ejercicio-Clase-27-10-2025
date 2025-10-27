@@ -17,7 +17,7 @@ const categorySchema = new mongoose.Schema({
     isActive: { 
         type: Boolean, 
         default: true 
-  } 
+    } 
 });
 
 export const Categoria = mongoose.model("Categoria", categorySchema)
