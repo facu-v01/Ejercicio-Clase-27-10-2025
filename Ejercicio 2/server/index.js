@@ -41,6 +41,32 @@ app.get("/api/categorias", async (req, res, next) => {
     }
 })
 
+app.get("/api/categorias/:id", async (req, res, next) => {
+
+    try {
+        
+        const categoriaId = req.params.id
+        console.log("Buscando categoria con ID:", categoriaId)
+
+        const categoria = await Categoria.findById(categoriaId)
+
+        if (!categoria) {
+            const error = new Error("Categoria no encontrada")
+            error.status = 404
+            return next(error)
+        }
+
+        res.status(200).json(categoria)
+
+    } catch (error) {
+
+        console.error("Error al buscar la categoria por ID:", error.message)
+        error.status = 400
+        next(error)
+
+    }
+})
+
 app.get("/api/productos", async (req, res, next) => {
 
     try {
@@ -100,7 +126,7 @@ app.post("/api/categorias", async (req, res, next) => {
 
     } catch (error) {
         console.error("Error al agregar categoria:", error.message)
-        error.status(400)
+        error.status = 404
         next(error)
     }
 })
@@ -121,7 +147,7 @@ app.post("/api/productos", async (req, res, next) => {
 
     } catch (error) {
         console.error("Error al agregar producto:", error.message)
-        error.status(400)
+        error.status = 404
         next(error)
     }
 })
@@ -141,7 +167,7 @@ app.put("/api/productos/:id", async (req, res, next) => {
 
         if (!productoActualizado) {
             const error = new Error("Producto no encontrado para actualizar")
-            error.status(404)
+            error.status = 404
             return next(error)
         }
 
@@ -152,7 +178,37 @@ app.put("/api/productos/:id", async (req, res, next) => {
 
     } catch (error) {
         console.error("Error al actualizar el producto:", error.message)
-        error.status(400)
+        error.status = 404
+        next(error)
+    }
+})
+
+app.put("/api/categorias/:id", async (req, res, next) => {
+    try {
+        const categoriaId = req.params.id
+        const datosActualizados = req.body
+        console.log(`Actualizando los datos de la categoria con ID ${categoriaId} con datos:`, datosActualizados)
+
+        const categoriaActualizada = await Categoria.findByIdAndUpdate(
+            categoriaId,
+            datosActualizados,
+            { new: true, runValidators: true }
+        )
+
+        if (!categoriaActualizada) {
+            const error = new Error("Categoría no encontrada para actualizar")
+            error.status = 404
+            return next(error)
+        }
+
+        res.status(200).json({
+            message: "Categoría actualizada con éxitos",
+            producto: categoriaActualizada
+        })
+
+    } catch (error) {
+        console.error("Error al actualizar la categoria:", error.message)
+        error.status = 404
         next(error)
     }
 })
@@ -183,6 +239,30 @@ app.delete("/api/productos/:id", async (req, res, next) => {
     }
 })
 
+app.delete("/api/categorias/:id", async (req, res, next) => {
+    try {
+        const categoriaId = req.params.id
+        console.log("Eliminando categoria con ID:", categoriaId)
+
+        const categoriaEliminada = await Categoria.findByIdAndDelete(categoriaId)
+
+        if (!categoriaEliminada) {
+            const error = new Error("No se encontró la categoría a eliminar")
+            error.status(404)
+            return next(error)
+        }
+
+        res.status(200).json({
+            message: "Categoría eliminada exitosamente",
+            producto: categoriaEliminada
+        })
+
+    } catch (error) {
+        console.error("Error al eliminar la categoría:", error.message)
+        error.status(400)
+        next(error)
+    }
+})
 
 // Middleware páginas no encontradas (404)
 app.use((req, res, next) => {
