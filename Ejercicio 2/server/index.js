@@ -40,7 +40,7 @@ app.get("/api/categorias", async (req, res, next) => {
 
     }
 })
-// cat x id
+
 app.get("/api/categorias/:id", async (req, res, next) => {
     try {
         const categoriaId = req.params.id
@@ -58,21 +58,6 @@ app.get("/api/categorias/:id", async (req, res, next) => {
         next(error)
     }
 })
-
-// app.get("/api/productos", async (req, res, next) => {
-
-//     try {
-
-//         const productos = await Producto.find().populate({path: "category", select: "name -_id", populate: {path: "parentCategory", select: "name -_id"}})
-//         res.status(200).json(productos)
-
-//     } catch (error) {
-
-//         console.error("Error al obtener los productos:", error.message)
-//         next(error)
-
-//     }
-// })
 
 app.get("/api/categorias/:id", async (req, res, next) => {
 
