@@ -30,7 +30,7 @@ app.get("/api/categorias", async (req, res, next) => {
 
     try {
 
-        const categorias = await Categoria.find()
+        const categorias = await Categoria.find().populate('parentCategory')
         res.status(200).json(categorias)
 
     } catch (error) {
