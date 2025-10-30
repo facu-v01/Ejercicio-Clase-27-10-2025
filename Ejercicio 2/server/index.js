@@ -40,19 +40,112 @@ app.get("/api/categorias", async (req, res, next) => {
 
     }
 })
+// cat x id
+app.get("/api/categorias/:id", async (req, res, next) => {
+    try {
+        const categoriaId = req.params.id
+        const categoria = await Categoria.findById(categoriaId).populate('parentCategory')
+
+        if (!categoria) {
+            const error = new Error("Categoría no encontrada")
+            error.status = 404
+            return next(error)
+        }
+        res.status(200).json(categoria)
+    } catch (error) {
+        console.error("Error al buscar la categoria por ID:", error.message)
+        error.status = 400
+        next(error)
+    }
+})
+
+// app.get("/api/productos", async (req, res, next) => {
+
+//     try {
+
+//         const productos = await Producto.find().populate({path: "category", select: "name -_id", populate: {path: "parentCategory", select: "name -_id"}})
+//         res.status(200).json(productos)
+
+//     } catch (error) {
+
+//         console.error("Error al obtener los productos:", error.message)
+//         next(error)
+
+//     }
+// })
 
 app.get("/api/productos", async (req, res, next) => {
-
     try {
+        // crud
+        const {
+            search,       
+            category,     
+            minPrice,
+            maxPrice,
+            inStock,    
 
-        const productos = await Producto.find().populate({path: "category", select: "name -_id", populate: {path: "parentCategory", select: "name -_id"}})
-        res.status(200).json(productos)
+            // Ordenar
+            sortBy = 'name', 
+            order = 'asc',  
+
+            // Pag
+            page = 1,
+            limit = 10
+        } = req.query;
+
+        // filtros
+        const filters = {};
+
+        if (search) {
+            filters.$text = { $search: search };
+        }
+        if (category) {
+            filters.category = category; 
+        }
+        if (minPrice || maxPrice) {
+            filters.price = {};
+            if (minPrice) filters.price.$gte = Number(minPrice);
+            if (maxPrice) filters.price.$lte = Number(maxPrice);
+        }
+        if (inStock === 'true') {
+            filters.stock = { $gt: 0 };
+        } else if (inStock === 'false') {
+            filters.stock = { $eq: 0 };
+        }
+
+        //ordenamiento
+        const sortOptions = {};
+        sortOptions[sortBy] = order === 'desc' ? -1 : 1;
+
+        // paginación
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const productos = await Producto.find(filters)
+    
+            .populate({
+                path: "category",
+                select: "name description", 
+                populate: {
+                    path: "parentCategory",
+                    select: "name"
+                }
+            })
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(parseInt(limit));
+            
+        const totalProductos = await Producto.countDocuments(filters);
+
+        res.status(200).json({
+            totalProductos,
+            totalPages: Math.ceil(totalProductos / limit),
+            currentPage: parseInt(page),
+            productos
+        });
 
     } catch (error) {
-
         console.error("Error al obtener los productos:", error.message)
         next(error)
-
     }
 })
 
